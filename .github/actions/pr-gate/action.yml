@@ -1,0 +1,28 @@
+name: PR gate
+description: Posts the internal-review check run. Receives a short-lived App token, never the App key.
+
+inputs:
+  token:
+    description: App installation token scoped to this repository
+    required: true
+  head-sha:
+    required: true
+  attested:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        HEAD: ${{ inputs.head-sha }}
+        ATTESTED: ${{ inputs.attested }}
+      run: |
+        if [ "$ATTESTED" = true ]; then
+          state=(-f status=completed -f conclusion=success -f 'output[title]=attested')
+        else
+          state=(-f status=in_progress -f 'output[title]=waiting for the attested label')
+        fi
+        gh api "repos/$GITHUB_REPOSITORY/check-runs" -f name=internal-review -f head_sha="$HEAD" "${state[@]}" \
+          -f 'output[summary]=playground gate' --jq '{id, app: .app.slug, status, conclusion}'
