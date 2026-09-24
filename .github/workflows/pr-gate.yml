@@ -15,3 +15,4 @@ jobs:
     with:
       head_sha: ${{ github.event.pull_request.head.sha }}
       attested: ${{ contains(github.event.pull_request.labels.*.name, 'attested') }}
+    secrets: inherit
