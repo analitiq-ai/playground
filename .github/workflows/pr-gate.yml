@@ -11,7 +11,11 @@ permissions: {}
 jobs:
   gate:
     runs-on: ubuntu-latest
-    environment: pr-gate
+    # No deployment record: the job only needs the key, and each run would otherwise add a "deployed" entry
+    # to the PR timeline. The branch policy still applies (verified on push, pull_request, workflow_dispatch).
+    environment:
+      name: pr-gate
+      deployment: false
     concurrency:
       group: pr-gate-${{ github.event.pull_request.number }}
     steps:
