@@ -1,0 +1,17 @@
+name: PR Gate
+
+# pull_request_target runs this file from main, so a PR cannot change what runs with the key.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions: {}
+
+jobs:
+  gate:
+    concurrency:
+      group: pr-gate-${{ github.event.pull_request.number }}
+    uses: ./.github/workflows/gate.yml
+    with:
+      head_sha: ${{ github.event.pull_request.head.sha }}
+      attested: ${{ contains(github.event.pull_request.labels.*.name, 'attested') }}
