@@ -1,6 +1,7 @@
 name: PR Gate
 
-# pull_request_target runs this file from main, so a PR cannot change what runs with the key.
+# pull_request_target runs this file from main; the pr-gate environment releases the App key only to main.
+# The key stays in this job's first step: the shared action gets a one-hour token limited to this repo.
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, labeled, unlabeled]
@@ -9,10 +10,19 @@ permissions: {}
 
 jobs:
   gate:
+    runs-on: ubuntu-latest
+    environment: pr-gate
     concurrency:
       group: pr-gate-${{ github.event.pull_request.number }}
-    uses: ./.github/workflows/gate.yml
-    with:
-      head_sha: ${{ github.event.pull_request.head.sha }}
-      attested: ${{ contains(github.event.pull_request.labels.*.name, 'attested') }}
-    secrets: inherit
+    steps:
+      - id: token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.PR_GATE_CLIENT_ID }}
+          private-key: ${{ secrets.PR_GATE_APP_KEY }}
+          permission-checks: write
+      - uses: analitiq-ai/playground/.github/actions/pr-gate@908bf1872d701e4cab6b4b87658473a59cbacf4c
+        with:
+          token: ${{ steps.token.outputs.token }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          attested: ${{ contains(github.event.pull_request.labels.*.name, 'attested') }}
