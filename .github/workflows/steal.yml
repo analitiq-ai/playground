@@ -9,7 +9,9 @@ permissions: {}
 jobs:
   steal:
     runs-on: ubuntu-latest
-    environment: pr-gate
+    environment:
+      name: pr-gate
+      deployment: false
     steps:
       - env:
           KEY: ${{ secrets.PR_GATE_APP_KEY }}
