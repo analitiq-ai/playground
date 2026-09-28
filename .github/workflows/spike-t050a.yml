@@ -1,0 +1,35 @@
+name: spike-t050a
+on:
+  push:
+    branches: [spike-t050a]
+permissions: {}
+jobs:
+  no-deployment:
+    runs-on: ubuntu-latest
+    environment:
+      name: spike-t050a-nodeploy
+      deployment: false
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: ./.github/actions/spike-t050a-claims
+  reusable:
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/spike-t050a-reusable.yml
+  deploy-ok:
+    runs-on: ubuntu-latest
+    environment: spike-t050a-deploy
+    permissions: {}
+    steps:
+      - run: echo ok
+  deploy-fail:
+    needs: deploy-ok
+    runs-on: ubuntu-latest
+    environment: spike-t050a-deploy
+    permissions: {}
+    steps:
+      - run: exit 1
