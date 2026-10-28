@@ -1,0 +1,79 @@
+name: t029
+
+# claude-plugins-internal T029 on a CI runner: quickstart US1 steps 1-4 with a fresh config and no login. Each run
+# serves the marketplace from a scratch branch it pushes to, so step 3 can commit, update and compare.
+on:
+  push:
+    branches: [t029-core-carrier]
+
+permissions:
+  contents: write
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      CLAUDE_CONFIG_DIR: ${{ github.workspace }}/../claude-config
+      SCRATCH: t029-ci-${{ github.run_id }}
+      CACHE: ${{ github.workspace }}/../claude-config/plugins/cache/t029-core/carrier
+    defaults:
+      run:
+        shell: bash -euxo pipefail {0}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g @anthropic-ai/claude-code@2.1.311
+      - name: Scratch branch
+        run: |
+          git config user.name github-actions
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git push origin "HEAD:refs/heads/$SCRATCH"
+          mkdir -p "$RUNNER_TEMP/work"
+
+      - name: Step 1, install
+        run: |
+          claude plugin marketplace add "https://github.com/$GITHUB_REPOSITORY.git#$SCRATCH"
+          claude plugin install carrier@t029-core
+          test -d "$CACHE/0.1.1/core" && test ! -L "$CACHE/0.1.1/core"
+          test -f "$CACHE/0.1.1/core/identity.ts"
+          test -f "$CACHE/0.1.1/node_modules/zod/package.json"
+
+      - name: Step 2, the hook adds 212
+        working-directory: ${{ runner.temp }}/work
+        run: |
+          claude -p "say ok" --debug-file "$RUNNER_TEMP/step2.log" || true
+          grep -F 'Hook UserPromptSubmit (UserPromptSubmit) success:\n212' "$RUNNER_TEMP/step2.log"
+
+      - name: Step 3, update without and with a bump
+        run: |
+          printf '\n// T029 CI step 3 marker.\n' >> core/src/values.ts
+          git commit -qam "ci: core edit, no bump"
+          git push -q origin "HEAD:refs/heads/$SCRATCH"
+          claude plugin marketplace update t029-core
+          claude plugin update carrier@t029-core
+          ls "$CACHE"
+          test ! -e "$CACHE/0.1.2"
+          ! grep -q 'T029 CI step 3 marker' "$CACHE/0.1.1/core/values.ts"
+          sed -i 's/"version": "0.1.1"/"version": "0.1.2"/' carrier/plugin/.claude-plugin/plugin.json
+          git commit -qam "ci: bump to 0.1.2"
+          git push -q origin "HEAD:refs/heads/$SCRATCH"
+          claude plugin marketplace update t029-core
+          claude plugin update carrier@t029-core
+          ls "$CACHE"
+          grep -q 'T029 CI step 3 marker' "$CACHE/0.1.2/core/values.ts"
+
+      - name: Step 4, missing zod blocks the prompt
+        working-directory: ${{ runner.temp }}/work
+        run: |
+          rm -r "$CACHE/0.1.2/node_modules/zod"
+          claude -p "say ok" > "$RUNNER_TEMP/step4.out" 2>&1 || true
+          cat "$RUNNER_TEMP/step4.out"
+          grep -F 'UserPromptSubmit operation blocked by hook' "$RUNNER_TEMP/step4.out"
+          grep -F 'core dependency zod is not installed' "$RUNNER_TEMP/step4.out"
+          ! grep -F 'Not logged in' "$RUNNER_TEMP/step4.out"
+
+      - name: Remove the scratch branch
+        if: always()
+        run: git push origin --delete "$SCRATCH"
