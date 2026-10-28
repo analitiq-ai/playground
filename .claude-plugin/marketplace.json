@@ -1,0 +1,7 @@
+{
+  "name": "t029-core",
+  "owner": { "name": "analitiq-ai" },
+  "plugins": [
+    { "name": "carrier", "source": "./carrier/plugin", "description": "T029 fixture: a plugin carrying core" }
+  ]
+}
