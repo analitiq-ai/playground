@@ -83,3 +83,5 @@ export const ModuleName = z
   .refine((name) => !CoreSource.safeParse(name).success, {error: "a module name cannot be a core source"});
 
 export const FindingSource = z.union([CoreSource, ModuleName]);
+
+// T029 step 3 marker: a core/src change.
