@@ -1,5 +1,5 @@
 [shared]
-board = "https://github.com/orgs/<org>/projects/<n>"
+board = "https://github.com/orgs/analitiq-ai/projects/8"
 validators = []
 session_app_login = "codeworks-session[bot]"
 orchestrator_app_login = "codeworks-orchestrator[bot]"
