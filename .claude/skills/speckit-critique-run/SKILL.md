@@ -63,7 +63,7 @@ Challenge the specification and implementation plan through two distinct expert 
 
 ## Outline
 
-1. Run `.specify/extensions/critique/scripts/bash/check-prerequisites.sh --json --include-tasks` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. Run `.specify/scripts/bash/check-prerequisites.sh --json --include-tasks` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
 2. **Load Critique Context**:
    - **REQUIRED**: Read `spec.md` for requirements, user stories, and acceptance criteria
@@ -174,7 +174,7 @@ Challenge the specification and implementation plan through two distinct expert 
    - 🤔 **Question**: Ambiguity or assumption that needs stakeholder input. Cannot be resolved by the development team alone.
 
 7. **Generate Critique Report**:
-   Ensure the directory `FEATURE_DIR/critiques/` exists (create it if necessary), then create the critique report at `FEATURE_DIR/critiques/critique-{timestamp}.md` using `.specify/templates/critique-template.md` as the required structure. The report must include:
+   Ensure the directory `FEATURE_DIR/critiques/` exists (create it if necessary), then create the critique report at `FEATURE_DIR/critiques/critique-{timestamp}.md` using `.specify/extensions/critique/commands/critique-template.md` as the required structure. The report must include:
 
    - **Executive Summary**: Overall assessment and readiness to proceed
    - **Product Lens Findings**: Organized by subcategory (3a-3e)
