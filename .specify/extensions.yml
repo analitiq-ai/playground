@@ -1,0 +1,15 @@
+installed:
+- critique
+- grill
+settings:
+  auto_execute_hooks: true
+hooks:
+  after_plan:
+  - extension: critique
+    command: speckit.critique.run
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Run spec critique before proceeding to tasks?
+    description: Challenges the spec and plan through product and engineering lenses
+    condition: null

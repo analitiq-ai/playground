@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "extensions": {
+    "grill": {
+      "version": "1.0.2",
+      "source": "local",
+      "manifest_hash": "sha256:60d0d87635eb9e6759a887bfaefc870e6d119429bbf77ff3f348dd8678c0bdec",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.grill.me",
+          "speckit.grill.with-docs"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-10-29T15:18:55.620832+00:00"
+    },
+    "critique": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:0b63a1835415df730cbd487c90c1252b294980176c10c14a3fa9c31a7cb882e0",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "claude": [
+          "speckit.critique.run"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-10-29T15:23:48.664984+00:00"
+    }
+  }
+}
